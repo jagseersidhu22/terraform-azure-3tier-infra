@@ -5,7 +5,10 @@ trigger:
       - feature/dev/101
 pool:
   name: Jagseer-mac
-
+  
+variables:
+  TF_VAR_environment: dev
+  
 stages:
   - stage: Terrafrom_installer_Initplan
     displayName: Terrafrom installInit Plan
