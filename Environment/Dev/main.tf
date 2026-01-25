@@ -1,4 +1,4 @@
-##resource_group_name##
+##resource_group_name## development environment
 module "resource_group" {
   source = "../../Modules/resource_group"
 
