@@ -8,7 +8,6 @@ pool:
 stages:
   - stage: Terrafrom_installer_Initplan
     displayName: Terrafrom installInit Plan
-    pool: Jagseer-pc
     jobs:
       - job: Terraforminitplan
         displayName: Terraform init and Plan
