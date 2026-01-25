@@ -6,7 +6,7 @@ pool:
   name: Jagseer-pc
 
 stages:
-  - stage: Terrafrom installer Init plan
+  - stage: Terrafrom_installer_Initplan
     displayName: Terrafrom installInit Plan
     pool: Jagseer-pc
     jobs:
