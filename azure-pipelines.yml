@@ -1,0 +1,40 @@
+
+trigger:
+- feature/dev/101
+
+pool:
+  name: Jagseer-pc
+
+stages:
+  - stage: Terrafrom installer Init plan
+    displayName: Terrafrom installInit Plan
+    pool: Jagseer-pc
+    jobs:
+      - job: Terraforminitplan
+        displayName: Terraform init and Plan
+        steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            backendServiceArm: 'Sp1'
+            backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+            backendAzureRmResourceGroupName: 'imigrant-help'
+            backendAzureRmStorageAccountName: 'jagseerstg123'
+            backendAzureRmContainerName: 'containertf'
+            backendAzureRmKey: 'dev.terraform.tfstate'
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            environmentServiceNameAzureRM: 'Sp1'
+            environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+          
+
+
+
