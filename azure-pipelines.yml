@@ -10,8 +10,8 @@ variables:
   TF_VAR_environment: dev
   
 stages:
-  - stage: Terrafrom_installer_Initplan
-    displayName: Terrafrom installInit Plan
+  - stage: Terraform_installer_Initplan
+    displayName: Terraform installInit Plan
     jobs:
       - job: Terraforminitplan
         displayName: Terraform init and Plan
@@ -43,7 +43,43 @@ stages:
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
             environmentServiceNameAzureRM: 'Sp1'
             environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
-          
+      - job: Terraformfmt
+        displayName: Terraform code format
+        dependsOn: Terraforminitplan
+        steps:
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: 'Sp1'
+            environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+      - job: tfsec
+        displayName: tfsec scan
+        dependsOn: Terraformfmt
+        steps:
+        - task: CmdLine@2
+          inputs:
+            script: 'which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+        - task: CmdLine@2
+          continueOnError: true
+          inputs:
+            script: |
+              brew install tfsec
+              tfsec .
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
 
-
-
+      - job: tflint
+        displayName: tflint
+        dependsOn: tfsec
+        steps:
+        - task: CmdLine@2
+          continueOnError: true
+          inputs:
+            script: |
+              brew install tflint
+              tflint --version
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
