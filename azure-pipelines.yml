@@ -20,6 +20,8 @@ stages:
           inputs:
             terraformVersion: 'latest'
         - task: TerraformTask@5
+          env:
+            TF_VAR_environment: $(TF_VAR_environment)
           inputs:
             provider: 'azurerm'
             command: 'init'
@@ -33,6 +35,8 @@ stages:
 
         
         - task: TerraformTask@5
+          env:
+            TF_VAR_environment: $(TF_VAR_environment)
           inputs:
             provider: 'azurerm'
             command: 'plan'
