@@ -3,7 +3,7 @@ trigger:
 - feature/dev/101
 
 pool:
-  name: Jagseer-pc
+  name: Jagseer-mac
 
 stages:
   - stage: Terrafrom_installer_Initplan
