@@ -1,7 +1,8 @@
 
 trigger:
-- feature/dev/101
-
+  branches:
+    include:
+      - feature/dev/101
 pool:
   name: Jagseer-mac
 
@@ -15,7 +16,11 @@ stages:
         - task: TerraformInstaller@1
           inputs:
             terraformVersion: 'latest'
-        
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)//Environment/Dev'
         - task: TerraformTask@5
           inputs:
             provider: 'azurerm'
@@ -27,11 +32,8 @@ stages:
             backendAzureRmStorageAccountName: 'jagseerstg123'
             backendAzureRmContainerName: 'containertf'
             backendAzureRmKey: 'dev.terraform.tfstate'
-        - task: TerraformTask@5
-          inputs:
-            provider: 'azurerm'
-            command: 'validate'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+
+        
         - task: TerraformTask@5
           inputs:
             provider: 'azurerm'
