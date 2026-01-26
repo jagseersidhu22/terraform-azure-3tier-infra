@@ -77,3 +77,11 @@ stages:
               tflint
             errorActionPreference: 'continue'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+  - stage: CostStage
+    dependsOn: Terraform_installer_Initplan
+    displayName: Cost & Impact Assessment Stage
+    jobs:
+    - job: InfraCost
+      displayName: infra cost
+      steps:
+      
