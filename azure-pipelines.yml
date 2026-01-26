@@ -94,4 +94,4 @@ stages:
           targetType: 'inline'
           script: 'infracost breakdown --path $(System.DefaultWorkingDirectory)/Environment/Dev'
           errorActionPreference: 'continue'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'''
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
