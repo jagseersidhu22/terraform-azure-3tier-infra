@@ -117,50 +117,38 @@ stages:
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
             environmentServiceNameAzureRM: 'Sp1'
             environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
-  - stage: Approval
-    displayName: Approval Stage
+  - stage: Apply
+    displayName: Terraform Apply Stage
     dependsOn: TerraformPlan
     jobs:
-    - deployment: ManualApproval
-      displayName: Manual Approval job
-      environment: 'Dev'   # must define an environment in Azure DevOps
+    - deployment: TerraformApplyJob
+      displayName: Terraform Apply
+      environment: 'Dev'   # this environment has manual approval check in UI
       strategy:
         runOnce:
           deploy:
             steps:
-            - task: ManualValidation@0
+            - task: TerraformInstaller@1
               inputs:
-                notifyUsers: 'jagseersidhu22@gmail.com'
-                approvers: 'jagseersidhu22@gmail.com'
-                instructions: 'Please check the infra pipeline and approve if everything is correct before applying the infra.'
-  - stage: Apply
-    dependsOn: Approval
-    displayName: Terraform Apply Stage
-    jobs:
-      - job: TerraformApplyJob
-        displayName: Terraform Apply
-        steps:
-        - task: TerraformInstaller@1
-          inputs:
-            terraformVersion: 'latest'
-        - task: TerraformTask@5
-          env:
-            TF_VAR_environment: $(TF_VAR_environment)
-          inputs:
-            provider: 'azurerm'
-            command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
-            backendServiceArm: 'Sp1'
-            backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
-            backendAzureRmResourceGroupName: 'imigrant-help'
-            backendAzureRmStorageAccountName: 'jagseerstg123'
-            backendAzureRmContainerName: 'containertf'
-            backendAzureRmKey: 'dev.terraform.tfstate'
-        - task: TerraformTask@5
-          env:
-            TF_VAR_environment: $(TF_VAR_environment)
-          inputs:
-            provider: 'azurerm'
-            command: 'apply'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
-            environmentServiceNameAzureRM: 'Sp1'
+                terraformVersion: 'latest'
+            - task: TerraformTask@5
+              env:
+                TF_VAR_environment: $(TF_VAR_environment)
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+                backendServiceArm: 'Sp1'
+                backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+                backendAzureRmResourceGroupName: 'imigrant-help'
+                backendAzureRmStorageAccountName: 'jagseerstg123'
+                backendAzureRmContainerName: 'containertf'
+                backendAzureRmKey: 'dev.terraform.tfstate'
+            - task: TerraformTask@5
+              env:
+                TF_VAR_environment: $(TF_VAR_environment)
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+                environmentServiceNameAzureRM: 'Sp1'
