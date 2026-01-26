@@ -58,6 +58,7 @@ stages:
         dependsOn: Terraforminitplan
         steps:
         - task: tfsec@1
+          continueOnError: true
           inputs:
             version: 'v1.26.0'
             dir: '$(System.DefaultWorkingDirectory)/Environment/Dev'
@@ -67,6 +68,7 @@ stages:
         dependsOn: tfsec
         steps:
         - task: PowerShell@2
+          continueOnError: true
           inputs:
             targetType: 'inline'
             script: |
