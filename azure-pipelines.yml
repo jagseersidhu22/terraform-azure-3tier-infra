@@ -57,26 +57,21 @@ stages:
         displayName: tfsec scan
         dependsOn: Terraforminitplan
         steps:
-        - task: CmdLine@2
+        - task: tfsec@1
           inputs:
-            script: 'which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
-        - task: CmdLine@2
-          continueOnError: true
-          inputs:
-            script: |
-              brew install tfsec
-              tfsec .
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+            version: 'v1.26.0'
+            dir: '$(System.DefaultWorkingDirectory)/Environment/Dev'
 
       - job: tflint
         displayName: tflint
         dependsOn: tfsec
         steps:
-        - task: CmdLine@2
-          continueOnError: true
+        - task: PowerShell@2
           inputs:
+            targetType: 'inline'
             script: |
-              brew install tflint
-              tflint --version
+              winget install TerraformLinters.tflint
+              ls
+              tflint
+            errorActionPreference: 'continue'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
