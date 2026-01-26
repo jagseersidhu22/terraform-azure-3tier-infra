@@ -10,7 +10,7 @@ variables:
   TF_VAR_environment: dev
   
 stages:
-  - stage: Terraform_init
+  - stage: Terraform_init_scans
     displayName: Terraform installInit
     jobs:
       - job: Terraforminit
@@ -69,7 +69,7 @@ stages:
             errorActionPreference: 'continue'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
   - stage: CostStage
-    dependsOn: Terraform_installer_Initplan
+    dependsOn: Terraform_init_scans
     displayName: Cost & Impact Assessment Stage
     jobs:
     - job: InfraCost
@@ -121,14 +121,18 @@ stages:
     displayName: Approval Stage
     dependsOn: TerraformPlan
     jobs:
-      - job: ManualApproval
-        displayName: Manual Approval job
-        steps:
-        - task: ManualValidation@1
-          inputs:
-            notifyUsers: 'jagseersidhu22@gmail.com'
-            approvers: 'jagseersidhu22@gmail.com'
-            instructions: 'please check the infra pipeline and approve if its allright to proceed further for Apply the infra'
+    - deployment: ManualApproval
+      displayName: Manual Approval job
+      environment: 'Dev'   # must define an environment in Azure DevOps
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: ManualValidation@0
+              inputs:
+                notifyUsers: 'jagseersidhu22@gmail.com'
+                approvers: 'jagseersidhu22@gmail.com'
+                instructions: 'Please check the infra pipeline and approve if everything is correct before applying the infra.'
   - stage: Apply
     dependsOn: Approval
     displayName: Terraform Apply Stage
