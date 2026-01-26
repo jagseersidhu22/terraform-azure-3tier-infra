@@ -1,0 +1,154 @@
+
+trigger:
+  branches:
+    include:
+      - feature/prod/101
+pool:
+  name: Jagseer-pc
+  
+variables:
+  TF_VAR_environment: prod
+  
+stages:
+  - stage: Terraform_init_scans
+    displayName: Terraform installInit
+    jobs:
+      - job: Terraforminit
+        displayName: Terraform init
+        steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTask@5
+          env:
+            TF_VAR_environment: $(TF_VAR_environment)
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+            backendServiceArm: 'Sp1'
+            backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+            backendAzureRmResourceGroupName: 'imigrant-help'
+            backendAzureRmStorageAccountName: 'jagseerstg123'
+            backendAzureRmContainerName: 'containertf'
+            backendAzureRmKey: 'prod.terraform.tfstate'
+
+        
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: 'Sp1'
+            environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+
+      - job: tfsec
+        displayName: tfsec scan
+        dependsOn: Terraforminit
+        steps:
+        - task: tfsec@1
+          continueOnError: true
+          inputs:
+            version: 'v1.26.0'
+            dir: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+
+      - job: tflint
+        displayName: tflint
+        dependsOn: tfsec
+        steps:
+        - task: PowerShell@2
+          continueOnError: true
+          inputs:
+            targetType: 'inline'
+            script: |
+              winget install TerraformLinters.tflint
+              ls
+              tflint
+            errorActionPreference: 'continue'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+  - stage: CostStage
+    dependsOn: Terraform_init_scans
+    displayName: Cost & Impact Assessment Stage
+    jobs:
+    - job: InfraCost
+      displayName: infra cost
+      steps:
+      - task: InfracostSetup@2
+        inputs:
+          apiKey: '$(INFRACOST_API_KEY)'
+          version: '0.10.x'
+      - task: PowerShell@2
+        displayName: infracost estimate
+        inputs:
+          targetType: 'inline'
+          script: 'infracost breakdown --path $(System.DefaultWorkingDirectory)/Environment/Prod'
+          errorActionPreference: 'continue'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+  - stage: TerraformPlan
+    displayName: Terraform plan & Review
+    jobs:
+      - job: Terraform_plan
+        displayName: Terraform plan And Review
+        steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTask@5
+          env:
+            TF_VAR_environment: $(TF_VAR_environment)
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+            backendServiceArm: 'Sp1'
+            backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+            backendAzureRmResourceGroupName: 'imigrant-help'
+            backendAzureRmStorageAccountName: 'jagseerstg123'
+            backendAzureRmContainerName: 'containertf'
+            backendAzureRmKey: 'prod.terraform.tfstate'
+        - task: TerraformTask@5
+          env:
+            TF_VAR_environment: $(TF_VAR_environment)
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+            environmentServiceNameAzureRM: 'Sp1'
+            environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+  - stage: Apply
+    displayName: Terraform Apply Stage
+    dependsOn: TerraformPlan
+    jobs:
+    - deployment: TerraformApplyJob
+      displayName: Terraform Apply
+      environment: 'prod'   # this environment has manual approval check in UI
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: TerraformInstaller@1
+              inputs:
+                terraformVersion: 'latest'
+            - task: TerraformTask@5
+              env:
+                TF_VAR_environment: $(TF_VAR_environment)
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+                backendServiceArm: 'Sp1'
+                backendAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+                backendAzureRmResourceGroupName: 'imigrant-help'
+                backendAzureRmStorageAccountName: 'jagseerstg123'
+                backendAzureRmContainerName: 'containertf'
+                backendAzureRmKey: 'prod.terraform.tfstate'
+            - task: TerraformTask@5
+              env:
+                TF_VAR_environment: $(TF_VAR_environment)
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Prod'
+                environmentServiceNameAzureRM: 'Sp1'
