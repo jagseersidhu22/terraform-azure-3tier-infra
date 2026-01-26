@@ -43,10 +43,6 @@ stages:
             workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
             environmentServiceNameAzureRM: 'Sp1'
             environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
-      - job: Terraformfmt
-        displayName: Terraform code format
-        dependsOn: Terraforminitplan
-        steps:
         - task: TerraformTask@5
           inputs:
             provider: 'azurerm'
@@ -56,9 +52,10 @@ stages:
             customCommand: 'fmt'
             environmentServiceNameAzureRM: 'Sp1'
             environmentAzureRmOverrideSubscriptionID: '68091150-801e-4498-8be2-e5d4bcf9919c'
+
       - job: tfsec
         displayName: tfsec scan
-        dependsOn: Terraformfmt
+        dependsOn: Terraforminitplan
         steps:
         - task: CmdLine@2
           inputs:
