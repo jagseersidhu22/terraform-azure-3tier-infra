@@ -2,7 +2,7 @@
 trigger:
   branches:
     include:
-      - feature/prod/101
+      - main
 pool:
   name: Jagseer-pc
   
