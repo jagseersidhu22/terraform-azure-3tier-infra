@@ -129,7 +129,7 @@ module "kv" {
 
   kv_secrets = {
     prod_db_password = {
-      name         = "db-password"
+      name         = "dbs-password"
       value        = random_password.secrets["db"].result
       kv_key       = "prod_kv"
       content_type = "text/plain"
@@ -140,7 +140,7 @@ module "kv" {
     }
 
     prod_frontend_vm_password = {
-      name         = "frontend-vm-password"
+      name         = "frontends-vm-password"
       value        = random_password.secrets["frontend_vm"].result
       kv_key       = "prod_kv"
       content_type = "text/plain"
@@ -151,7 +151,7 @@ module "kv" {
     }
 
     prod_backend_vm_password = {
-      name         = "backend-vm-password"
+      name         = "backends-vm-password"
       value        = random_password.secrets["backend_vm"].result
       kv_key       = "prod_kv"
       content_type = "text/plain"
