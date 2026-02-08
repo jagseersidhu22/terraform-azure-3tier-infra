@@ -1,77 +1,94 @@
-# terraform-azure-3tier-infra
-Terraform code to provision a production-ready 3-tier application infrastructure on Azure with Dev, Pre-Prod, and Prod environments.
-# 3-Tier Application Infrastructure on Azure (Terraform)
+Terraform code to provision a production-ready 3-tier application infrastructure on Azure with Dev, Pre-Prod, and Prod environments, integrated with CI/CD pipelines and DevSecOps practices.
 
-This repository contains Terraform code to provision a **production-ready 3-tier application infrastructure** on **Microsoft Azure** using **Infrastructure as Code (IaC)** principles.
+🏗 Architecture Overview
 
-The setup supports **Dev, Pre-Prod, and Prod** environments, each created once and managed independently with separate Terraform state files.
+Modular 3-tier application infrastructure:
 
----
+Web, App, DB tiers on Azure VMs
 
-## 🏗 Architecture Overview
+VNet with subnets (Web / App / DB)
 
-Each environment provisions the following components:
+Network Security Groups (NSGs)
 
-- Resource Group (RG)
-- Virtual Network (VNet)
-- Subnets (Web / App / DB)
-- Network Security Groups (NSGs)
-- Network Interfaces (NICs)
-- Virtual Machines (Web Tier & App Tier)
-- Database Tier (VM-based)
-- Azure Key Vault (Secrets Management)
-- Remote Terraform State stored in Azure Blob Storage
+Azure Key Vault for secrets
 
----
+Remote Terraform state in Azure Blob Storage
 
-## 🌍 Environments
+Each environment is isolated for safe, repeatable deployments.
 
-| Environment | State File | Purpose |
-|------------|-----------|---------|
-| Dev        | dev.tfstate        | Development & testing |
-| Pre-Prod  | preprod.tfstate    | Staging / validation |
-| Prod      | prod.tfstate       | Production |
+🌍 Environments
+Environment	State File	Purpose
+Dev	dev.tfstate	Development & testing
+Pre-Prod	preprod.tfstate	Staging / validation
+Prod	prod.tfstate	Production
+🔐 State Management
 
-Each environment is **isolated** and managed independently to avoid cross-impact.
+Remote backend with Azure Storage Account
 
----
+Separate state files per environment
 
-## 🔐 State Management
+Enables collaboration, version control, and controlled changes
 
-- Terraform remote backend configured using **Azure Storage Account**
-- Separate state files for:
-  - Dev
-  - Pre-Prod
-  - Prod
-- Enables safe collaboration and controlled infrastructure changes
+🔒 DevSecOps Steps (Short)
 
----
+Branching Strategy:
 
-## 📦 Key Features
+Trunk-based development
 
-✔ Clean environment isolation  
-✔ Secure networking using NSGs  
-✔ Secrets stored securely in Azure Key Vault  
-✔ Scalable and modular Terraform design  
-✔ Production-ready 3-tier architecture  
-✔ Supports controlled and repeatable deployments  
+Feature branches → Dev & Pre-Prod pipelines
 
----
+Main branch → Prod pipeline (manual approval)
 
-## 🧰 Tools & Technologies Used
+Terraform Quality Checks:
 
-- Terraform
-- Microsoft Azure
-- Azure Virtual Network
-- Azure Virtual Machines
-- Azure Key Vault
-- Azure Blob Storage (Remote Backend)
-- Git & GitHub
+TFLint → Terraform linting
 
----
+TFsec → Security scanning
 
-## 🚀 How to Deploy
+Infracost → Cost estimation
 
-### 1️⃣ Authenticate to Azure
-```bash
-az login
+CI/CD Pipelines:
+
+Automated build & plan for each environment
+
+Artifacts published to Azure storage / pipeline artifacts
+
+Prod deployment gated with manual validation
+
+Secrets & Config Management:
+
+Sensitive info in Azure Key Vault
+
+Secure pipeline variables & secrets
+
+Environment Isolation:
+
+Separate Terraform state files per environment
+
+Reduces risk & ensures controlled deployments
+
+📦 Key Features
+
+Production-ready 3-tier architecture
+
+Modular Terraform design
+
+Secure networking & secrets management
+
+Remote state management & environment isolation
+
+Integrated IaC quality checks, security, and cost awareness
+
+Supports trunk-based DevOps workflow
+
+🧰 Tools & Technologies
+
+Terraform
+
+Microsoft Azure (VNet, VMs, Key Vault, Blob Storage)
+
+Azure DevOps Pipelines & YAML
+
+TFLint, TFsec, Infracost
+
+Git & GitHub
